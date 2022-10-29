@@ -2,6 +2,8 @@
 const dotenv = require('dotenv');
 const axios = require('axios');
 
+const {Cocktail, Ingredient} = require("../models/model");
+
 dotenv.config();
 
 module.exports = {
@@ -15,20 +17,28 @@ module.exports = {
                   'X-RapidAPI-Key': process.env.KEY_DB,
                   'X-RapidAPI-Host': process.env.HOST
                 }
-              };
-              //promise 
-              var response = await axios.request(options);
+            };
+            var response = await axios.request(options);
             if (response.data) {
                 const data = response.data;
                 const drinks = data.drinks;
-                res.send(drinks);
+
+                drinks.forEach((value) => {
+                    var cocktail = new Cocktail(value);
+                    Cocktail.findOne({'idDrink': value.idDrink})
+                    .then(async data => {
+                        if (!data){
+                            await cocktail.save();
+                        }
+                    })
+                })
+                res.send(response.data);
             } else {
                 res.send('error');
             }
         } catch (err) {
             res.send('something happen : ' + err.message);
         }
-        
     },
     searchCocktailByIngredient : async (req, res) => {
         try{
@@ -42,6 +52,7 @@ module.exports = {
             }
           };
           axios.request(options).then(function (response) {
+            
               res.send(response.data);
           }).catch(function (error) {
               res.send(error);
@@ -61,11 +72,22 @@ module.exports = {
               'X-RapidAPI-Host': process.env.HOST
             }
           };
-          axios.request(options).then(function (response) {
-              res.send(response.data);
-          }).catch(function (error) {
-              res.send(error);
-          });
+          axios.request(options).then(async function (response) {
+            var ingredient = new Ingredient(response.data.ingredients[0]);
+    
+            Ingredient.findOne({'idIngredient': ingredient.idIngredient})
+            .then(async data => {
+                if (!data){
+                    await ingredient.save();
+                }
+                res.send(ingredient);
+            }).catch(error => {
+                res.send(error)
+            })
+        }).catch(function (error) {
+            res.send(error);
+        });
+
         } catch (error) {
             res.send('something happen : ' +error);
         }
@@ -81,10 +103,20 @@ module.exports = {
             }
           };
           axios.request(options).then(function (response) {
-              res.send(response.data);
-          }).catch(function (error) {
-              res.send(error);
-          });
+            var cocktail = new Cocktail(response.data.drinks[0]);
+            
+            Cocktail.findOne({'idDrink': cocktail.idDrink})
+            .then(async data => {
+                if (!data){
+                    await cocktail.save();
+                }
+                res.send(cocktail);
+            }).catch(error => {
+                res.send(error)
+            })
+        }).catch(function (error) {
+            res.send(error);
+        });
         } catch (error) {
             res.send('something happen : ' +error);
         }
@@ -99,12 +131,23 @@ module.exports = {
               'X-RapidAPI-Key': process.env.KEY_DB,
               'X-RapidAPI-Host': process.env.HOST
             }
-          };
-          axios.request(options).then(function (response) {
-              res.send(response.data);
-          }).catch(function (error) {
-              res.send(error);
-          });
+        };
+        axios.request(options).then(async function (response) {
+            var cocktail = new Cocktail(response.data.drinks[0]);
+            
+            Cocktail.findOne({'idDrink': cocktail.idDrink})
+            .then(async data => {
+                if (!data){
+                    await cocktail.save();
+                }
+                res.send(cocktail);
+            }).catch(error => {
+                res.send(error)
+            })
+        }).catch(function (error) {
+            res.send(error);
+        });
+
         } catch (error) {
             res.send('something happen : ' +error);
         }
@@ -121,7 +164,17 @@ module.exports = {
             }
           };
           axios.request(options).then(function (response) {
-              res.send(response.data);
+            var ingredient = new Ingredient(response.data.ingredients[0]);
+    
+            Ingredient.findOne({'idIngredient': ingredient.idIngredient})
+            .then(async data => {
+                if (!data){
+                    await ingredient.save();
+                }
+                res.send(ingredient);
+            }).catch(error => {
+                res.send(error)
+            })
           }).catch(function (error) {
               res.send(error);
           });
@@ -140,13 +193,26 @@ module.exports = {
               'X-RapidAPI-Host': process.env.HOST
             }
         };
-        axios.request(options).then(function (response) {
-            res.send(response.data);
-        }).catch(function (error) {
-            res.send(error);
-        });
-        } catch (error) {
-            res.send('something happen : ' +error);
+        var response = await axios.request(options);
+            if (response.data) {
+                const data = response.data;
+                const drinks = data.drinks;
+
+                drinks.forEach((value) => {
+                    var cocktail = new Cocktail(value);
+                    Cocktail.findOne({'idDrink': value.idDrink})
+                    .then(async data => {
+                        if (!data){
+                            await cocktail.save();
+                        }
+                    })
+                })
+                res.send(response.data);
+            } else {
+                res.send('error');
+            }
+        } catch (err) {
+            res.send('something happen : ' + err.message);
         }
     },
     filterByCategory : async (req, res) => {
